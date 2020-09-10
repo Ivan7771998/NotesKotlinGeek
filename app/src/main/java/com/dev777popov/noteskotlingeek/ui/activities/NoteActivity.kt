@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings.System.DATE_FORMAT
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
@@ -12,15 +13,25 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.dev777popov.noteskotlingeek.R
 import com.dev777popov.noteskotlingeek.data.entity.Note
+import com.dev777popov.noteskotlingeek.ui.viewmodels.BaseViewModel
+import com.dev777popov.noteskotlingeek.ui.viewmodels.MainViewModel
 import com.dev777popov.noteskotlingeek.ui.viewmodels.NoteViewModel
+import com.dev777popov.noteskotlingeek.ui.viewstates.MainViewState
+import com.dev777popov.noteskotlingeek.ui.viewstates.NoteViewState
 import com.dev777popov.noteskotlingeek.utils.getColor
 import kotlinx.android.synthetic.main.activity_note.*
+import java.text.SimpleDateFormat
 import java.util.*
 
-class NoteActivity : AppCompatActivity() {
+class NoteActivity :  BaseActivity<Note?, NoteViewState>() {
 
     private var note: Note? = null
-    lateinit var viewModel: NoteViewModel
+
+    override val viewModel: NoteViewModel by lazy {
+        ViewModelProvider(this).get(NoteViewModel::class.java)
+    }
+
+    override val layoutRes: Int  = R.layout.activity_note
 
     private val textChangeListener = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
@@ -33,12 +44,9 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_note)
         setSupportActionBar(toolbar)
         isEmptyData()
         note = intent.getParcelableExtra(NOTE_DATA)
-        viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         initView()
     }
@@ -97,5 +105,15 @@ class NoteActivity : AppCompatActivity() {
             intent.putExtra(NOTE_DATA, note)
             return intent
         }
+    }
+
+    override fun renderData(data: Note?) {
+        this.note = data
+        supportActionBar?.title = note?.let { note ->
+            SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(note.lastChanged)
+        } ?: let {
+            getString(R.string.hint_header_note)
+        }
+        initView()
     }
 }

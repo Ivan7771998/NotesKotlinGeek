@@ -1,36 +1,40 @@
 package com.dev777popov.noteskotlingeek.ui.activities
 
-import androidx.appcompat.app.AppCompatActivity
+
 import android.os.Bundle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dev777popov.noteskotlingeek.R
+import com.dev777popov.noteskotlingeek.data.entity.Note
 import com.dev777popov.noteskotlingeek.ui.adapters.NotesRVAdapter
+import com.dev777popov.noteskotlingeek.ui.viewmodels.BaseViewModel
 import com.dev777popov.noteskotlingeek.ui.viewmodels.MainViewModel
+import com.dev777popov.noteskotlingeek.ui.viewstates.MainViewState
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
-    private lateinit var viewModel: MainViewModel
+class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
+
+    override val viewModel: BaseViewModel<List<Note>?, MainViewState> by lazy {
+        ViewModelProvider(this).get(MainViewModel::class.java)
+    }
     private lateinit var adapter: NotesRVAdapter
+
+    override val layoutRes = R.layout.activity_main
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         adapter = NotesRVAdapter {
             startActivity(NoteActivity.newIntent(this, it))
         }
         rv_notes.adapter = adapter
 
-        viewModel.viewState().observe(this, Observer { state ->
-            state?.let {
-                adapter.notes = state.notes
-            }
-        })
-
         fab.setOnClickListener {
             startActivity(NoteActivity.newIntent(this))
+        }
+    }
+
+    override fun renderData(data: List<Note>?) {
+        data?.let {
+            adapter.notes = it
         }
     }
 }

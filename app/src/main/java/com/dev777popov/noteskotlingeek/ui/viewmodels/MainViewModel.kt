@@ -1,27 +1,37 @@
 package com.dev777popov.noteskotlingeek.ui.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.Observer
 import com.dev777popov.noteskotlingeek.data.NotesRepository
-import com.dev777popov.noteskotlingeek.ui.MainViewState
+import com.dev777popov.noteskotlingeek.data.entity.Note
+import com.dev777popov.noteskotlingeek.data.model.NoteResult
+import com.dev777popov.noteskotlingeek.ui.viewstates.MainViewState
 
-class MainViewModel: ViewModel() {
+class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
 
-    private val viewStateLiveData: MutableLiveData<MainViewState> = MutableLiveData()
-
-    init {
-        viewStateLiveData.value = MainViewState(NotesRepository.notes)
-    }
-
-    init {
-        NotesRepository.getNotes().observeForever { notes ->
-            notes?.let {
-                viewStateLiveData.value = viewStateLiveData.value?.copy(notes = notes) ?: MainViewState(notes)
+    private val notesObserver = Observer<NoteResult> { result ->
+        result ?: return@Observer
+        when (result) {
+            is NoteResult.Success<*> -> {
+                @Suppress("UNCHECKED_CAST")
+                viewStateLiveData.value = MainViewState(notes = result.data as? List<Note>)
+            }
+            is NoteResult.Error -> {
+                viewStateLiveData.value = MainViewState(error = result.error)
             }
         }
     }
 
+    private val repositoryNotes = NotesRepository.getNotes()
 
-    fun viewState(): LiveData<MainViewState> = viewStateLiveData
+    init {
+        viewStateLiveData.value = MainViewState()
+        repositoryNotes.observeForever(notesObserver)
+    }
+
+    override fun onCleared() {
+        repositoryNotes.removeObserver(notesObserver)
+        super.onCleared()
+    }
 }
+
+
