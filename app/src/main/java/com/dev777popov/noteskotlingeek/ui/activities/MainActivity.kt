@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.dev777popov.noteskotlingeek.R
 import com.dev777popov.noteskotlingeek.ui.adapters.NotesRVAdapter
 import com.dev777popov.noteskotlingeek.ui.viewmodels.MainViewModel
@@ -18,8 +17,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel =  ViewModelProvider(this).get(MainViewModel::class.java)
-        adapter = NotesRVAdapter()
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        adapter = NotesRVAdapter {
+            startActivity(NoteActivity.newIntent(this, it))
+        }
         rv_notes.adapter = adapter
 
         viewModel.viewState().observe(this, Observer { state ->
@@ -27,5 +28,9 @@ class MainActivity : AppCompatActivity() {
                 adapter.notes = state.notes
             }
         })
+
+        fab.setOnClickListener {
+            startActivity(NoteActivity.newIntent(this))
+        }
     }
 }

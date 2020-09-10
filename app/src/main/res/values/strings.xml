@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">NotesKotlinGeek</string>
+    <string name="hint_header_note">Заголовок</string>
+    <string name="hint_text_note">Текст заметки</string>
 </resources>
