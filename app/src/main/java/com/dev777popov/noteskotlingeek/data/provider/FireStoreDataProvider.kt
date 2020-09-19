@@ -9,21 +9,21 @@ import com.dev777popov.noteskotlingeek.data.model.NoteResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class FireStoreDataProvider : RemoteDataProvider {
+class FireStoreDataProvider(private val store: FirebaseFirestore, private val auth: FirebaseAuth) :
+    RemoteDataProvider {
 
     companion object {
         private const val NOTES_COLLECTION = "notes"
         private const val USER_COLLECTION = "users"
     }
 
-    private val store by lazy { FirebaseFirestore.getInstance() }
-    private val auth by lazy { FirebaseAuth.getInstance() }
-
     private val currentUser
         get() = auth.currentUser
 
     private val userNotesCollection
-        get() = currentUser?.let { store.collection(USER_COLLECTION).document(it.uid).collection(NOTES_COLLECTION) } ?: throw NoAuthException()
+        get() = currentUser?.let {
+            store.collection(USER_COLLECTION).document(it.uid).collection(NOTES_COLLECTION)
+        } ?: throw NoAuthException()
 
     override fun getCurrentUser(): LiveData<User?> = MutableLiveData<User?>().apply {
         value = currentUser?.let { User(it.displayName ?: "", it.email ?: "") }
@@ -58,6 +58,16 @@ class FireStoreDataProvider : RemoteDataProvider {
             userNotesCollection.document(note.id).set(note)
                 .addOnSuccessListener {
                     value = NoteResult.Success(note)
+                }.addOnFailureListener {
+                    value = NoteResult.Error(it)
+                }
+        }
+
+    override fun deleteNote(noteId: String): LiveData<NoteResult> =
+        MutableLiveData<NoteResult>().apply {
+            userNotesCollection.document(noteId).delete()
+                .addOnSuccessListener {
+                    value = NoteResult.Success(null)
                 }.addOnFailureListener {
                     value = NoteResult.Error(it)
                 }

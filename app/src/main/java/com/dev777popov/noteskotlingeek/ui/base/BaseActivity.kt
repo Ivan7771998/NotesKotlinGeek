@@ -1,4 +1,4 @@
-package com.dev777popov.noteskotlingeek.ui.activities
+package com.dev777popov.noteskotlingeek.ui.base
 
 import android.app.Activity
 import android.content.Intent
@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.dev777popov.noteskotlingeek.R
 import com.dev777popov.noteskotlingeek.data.errors.NoAuthException
-import com.dev777popov.noteskotlingeek.ui.viewmodels.BaseViewModel
-import com.dev777popov.noteskotlingeek.ui.viewstates.BaseViewState
 import com.firebase.ui.auth.AuthUI
 
 abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
@@ -62,11 +60,14 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
             .setAvailableProviders(providers)
             .build()
 
-        startActivityForResult(intent, RC_SIGN_IN)
+        startActivityForResult(intent,
+            RC_SIGN_IN
+        )
 
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == RC_SIGN_IN && resultCode != Activity.RESULT_OK){
             finish()
         }

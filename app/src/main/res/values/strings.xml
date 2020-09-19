@@ -8,4 +8,5 @@
     <string name="logout_ok">Да</string>
     <string name="logout_cancel">Нет</string>
     <string name="logout_menu_title">Выход</string>
+    <string name="note_delete_message">Подвердить удаление заметки?</string>
 </resources>

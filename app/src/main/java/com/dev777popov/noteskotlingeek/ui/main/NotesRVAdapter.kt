@@ -1,4 +1,4 @@
-package com.dev777popov.noteskotlingeek.ui.adapters
+package com.dev777popov.noteskotlingeek.ui.main
 
 import android.view.LayoutInflater
 import android.view.View

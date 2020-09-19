@@ -1,13 +1,12 @@
-package com.dev777popov.noteskotlingeek.ui.activities
+package com.dev777popov.noteskotlingeek.ui.splash
 
-import androidx.lifecycle.ViewModelProvider
-import com.dev777popov.noteskotlingeek.ui.viewmodels.SplashViewModel
-import com.dev777popov.noteskotlingeek.ui.viewstates.SplashViewState
+import com.dev777popov.noteskotlingeek.ui.base.BaseActivity
+import com.dev777popov.noteskotlingeek.ui.main.MainActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SplashActivity : BaseActivity<Boolean?, SplashViewState>() {
-    override val viewModel: SplashViewModel by lazy {
-        ViewModelProvider(this).get(SplashViewModel::class.java)
-    }
+
+    override val viewModel: SplashViewModel by viewModel()
 
     override val layoutRes: Nothing? = null
 

@@ -1,9 +1,8 @@
-package com.dev777popov.noteskotlingeek.ui.viewmodels
+package com.dev777popov.noteskotlingeek.ui.base
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.dev777popov.noteskotlingeek.ui.viewstates.BaseViewState
 
 open class BaseViewModel<T, S : BaseViewState<T>> : ViewModel() {
     open val viewStateLiveData = MutableLiveData<S>()
