@@ -2,22 +2,17 @@ package com.dev777popov.noteskotlingeek.ui.activities
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings.System.DATE_FORMAT
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.dev777popov.noteskotlingeek.R
 import com.dev777popov.noteskotlingeek.data.entity.Note
-import com.dev777popov.noteskotlingeek.ui.viewmodels.BaseViewModel
-import com.dev777popov.noteskotlingeek.ui.viewmodels.MainViewModel
 import com.dev777popov.noteskotlingeek.ui.viewmodels.NoteViewModel
-import com.dev777popov.noteskotlingeek.ui.viewstates.MainViewState
 import com.dev777popov.noteskotlingeek.ui.viewstates.NoteViewState
+import com.dev777popov.noteskotlingeek.utils.DATE_TIME_FORMAT
 import com.dev777popov.noteskotlingeek.utils.getColor
 import kotlinx.android.synthetic.main.activity_note.*
 import java.text.SimpleDateFormat
@@ -110,10 +105,8 @@ class NoteActivity :  BaseActivity<Note?, NoteViewState>() {
     override fun renderData(data: Note?) {
         this.note = data
         supportActionBar?.title = note?.let { note ->
-            SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(note.lastChanged)
-        } ?: let {
-            getString(R.string.hint_header_note)
-        }
+            SimpleDateFormat(DATE_TIME_FORMAT, Locale.getDefault()).format(note.lastChanged)
+        } ?: getString(R.string.hint_header_note)
         initView()
     }
 }
