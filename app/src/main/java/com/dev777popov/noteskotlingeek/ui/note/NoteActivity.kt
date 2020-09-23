@@ -1,5 +1,6 @@
-package com.dev777popov.noteskotlingeek.ui.activities
+package com.dev777popov.noteskotlingeek.ui.note
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -7,26 +8,24 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
-import androidx.lifecycle.ViewModelProvider
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.dev777popov.noteskotlingeek.R
 import com.dev777popov.noteskotlingeek.data.entity.Note
-import com.dev777popov.noteskotlingeek.ui.viewmodels.NoteViewModel
-import com.dev777popov.noteskotlingeek.ui.viewstates.NoteViewState
+import com.dev777popov.noteskotlingeek.ui.base.BaseActivity
 import com.dev777popov.noteskotlingeek.utils.DATE_TIME_FORMAT
 import com.dev777popov.noteskotlingeek.utils.getColor
 import kotlinx.android.synthetic.main.activity_note.*
+import org.jetbrains.anko.alert
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NoteActivity :  BaseActivity<Note?, NoteViewState>() {
+class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
 
     private var note: Note? = null
 
-    override val viewModel: NoteViewModel by lazy {
-        ViewModelProvider(this).get(NoteViewModel::class.java)
-    }
+    override val viewModel: NoteViewModel by viewModel()
 
-    override val layoutRes: Int  = R.layout.activity_note
+    override val layoutRes: Int = R.layout.activity_note
 
     private val textChangeListener = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
@@ -47,11 +46,15 @@ class NoteActivity :  BaseActivity<Note?, NoteViewState>() {
     }
 
     private fun initView() {
+        togglePallete().let { true }
         et_title.removeTextChangedListener(textChangeListener)
         et_body.removeTextChangedListener(textChangeListener)
         btn_save.setOnClickListener {
             saveNote()
             finish()
+        }
+        btn_delete.setOnClickListener {
+            deleteNote()
         }
 
         note?.let { note ->
@@ -75,12 +78,23 @@ class NoteActivity :  BaseActivity<Note?, NoteViewState>() {
             title = et_title.text.toString(),
             text = et_body.text.toString(),
             color = Note.Color.values().random(),
-                        lastChanged = Date ()
-            ) ?: Note(UUID.randomUUID().toString(), et_title.text.toString(), et_body.text.toString())
+            lastChanged = Date()
+        ) ?: Note(UUID.randomUUID().toString(), et_title.text.toString(), et_body.text.toString())
 
         note?.let {
             viewModel.save(it)
         }
+    }
+
+    private fun deleteNote() {
+        alert {
+            messageResource = R.string.note_delete_message
+            negativeButton(android.R.string.cancel) { dialog -> dialog.dismiss() }
+            positiveButton(android.R.string.ok) {
+                viewModel.delete()
+                finish()
+            }
+        }.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
@@ -102,8 +116,18 @@ class NoteActivity :  BaseActivity<Note?, NoteViewState>() {
         }
     }
 
-    override fun renderData(data: Note?) {
-        this.note = data
+
+    private fun togglePallete() {
+        if (colorPicker.isOpen) {
+            colorPicker.close()
+        } else {
+            colorPicker.open()
+        }
+    }
+
+    override fun renderData(data: NoteViewState.Data) {
+        if (data.isDeleted) finish()
+        this.note = data.note
         supportActionBar?.title = note?.let { note ->
             SimpleDateFormat(DATE_TIME_FORMAT, Locale.getDefault()).format(note.lastChanged)
         } ?: getString(R.string.hint_header_note)

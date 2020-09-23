@@ -1,4 +1,4 @@
-package com.dev777popov.noteskotlingeek.ui.activities
+package com.dev777popov.noteskotlingeek.ui.main
 
 
 import android.content.Context
@@ -7,16 +7,15 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import androidx.lifecycle.ViewModelProvider
 import com.dev777popov.noteskotlingeek.R
 import com.dev777popov.noteskotlingeek.data.entity.Note
-import com.dev777popov.noteskotlingeek.ui.adapters.NotesRVAdapter
+import com.dev777popov.noteskotlingeek.ui.note.NoteActivity
+import com.dev777popov.noteskotlingeek.ui.splash.SplashActivity
+import com.dev777popov.noteskotlingeek.ui.base.BaseActivity
 import com.dev777popov.noteskotlingeek.ui.dialogs.LogOutDialog
-import com.dev777popov.noteskotlingeek.ui.viewmodels.BaseViewModel
-import com.dev777popov.noteskotlingeek.ui.viewmodels.MainViewModel
-import com.dev777popov.noteskotlingeek.ui.viewstates.MainViewState
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
 
@@ -27,9 +26,7 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
         }
     }
 
-    override val viewModel: BaseViewModel<List<Note>?, MainViewState> by lazy {
-        ViewModelProvider(this).get(MainViewModel::class.java)
-    }
+    override val viewModel: MainViewModel by viewModel()
     private lateinit var adapter: NotesRVAdapter
 
     override val layoutRes = R.layout.activity_main
@@ -37,12 +34,21 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         adapter = NotesRVAdapter {
-            startActivity(NoteActivity.newIntent(this, it))
+            startActivity(
+                NoteActivity.newIntent(
+                    this,
+                    it
+                )
+            )
         }
         rv_notes.adapter = adapter
 
         fab.setOnClickListener {
-            startActivity(NoteActivity.newIntent(this))
+            startActivity(
+                NoteActivity.newIntent(
+                    this
+                )
+            )
         }
     }
 
