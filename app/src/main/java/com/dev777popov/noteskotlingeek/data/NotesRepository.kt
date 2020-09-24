@@ -4,10 +4,10 @@ import com.dev777popov.noteskotlingeek.data.entity.Note
 import com.dev777popov.noteskotlingeek.data.provider.FireStoreDataProvider
 import com.dev777popov.noteskotlingeek.data.provider.RemoteDataProvider
 
-class NotesRepository(private val remoteProvider: FireStoreDataProvider) {
+class NotesRepository(private val remoteProvider: RemoteDataProvider) {
     fun getNotes() = remoteProvider.subscribeToAllNotes()
-    fun saveNote(note: Note) = remoteProvider.saveNote(note)
-    fun deleteNote(id: String) = remoteProvider.deleteNote(id)
-    fun getNoteById(id: String) = remoteProvider.getNoteById(id)
-    fun getCurrentUser() = remoteProvider.getCurrentUser()
+    suspend fun saveNote(note: Note) = remoteProvider.saveNote(note)
+    suspend fun deleteNote(id: String) = remoteProvider.deleteNote(id)
+    suspend fun getNoteById(id: String) = remoteProvider.getNoteById(id)
+    suspend fun getCurrentUser() = remoteProvider.getCurrentUser()
 }

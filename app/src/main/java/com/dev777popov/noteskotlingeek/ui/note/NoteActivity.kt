@@ -1,6 +1,5 @@
 package com.dev777popov.noteskotlingeek.ui.note
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -19,7 +18,7 @@ import org.jetbrains.anko.alert
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
+class NoteActivity : BaseActivity<NoteViewState.Data>() {
 
     private var note: Note? = null
 
