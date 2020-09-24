@@ -12,7 +12,6 @@ class MainViewModel(notesRepository: NotesRepository) : BaseViewModel<List<Note>
         result ?: return@Observer
         when (result) {
             is NoteResult.Success<*> -> {
-                @Suppress("UNCHECKED_CAST")
                 viewStateLiveData.value =
                     MainViewState(notes = result.data as? List<Note>)
             }
@@ -26,12 +25,11 @@ class MainViewModel(notesRepository: NotesRepository) : BaseViewModel<List<Note>
     private val repositoryNotes = notesRepository.getNotes()
 
     init {
-        viewStateLiveData.value =
-            MainViewState()
+        viewStateLiveData.value = MainViewState()
         repositoryNotes.observeForever(notesObserver)
     }
 
-    override fun onCleared() {
+    public override fun onCleared() {
         repositoryNotes.removeObserver(notesObserver)
         super.onCleared()
     }
