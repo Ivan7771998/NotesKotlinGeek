@@ -9,14 +9,24 @@ import androidx.lifecycle.Observer
 import com.dev777popov.noteskotlingeek.R
 import com.dev777popov.noteskotlingeek.data.errors.NoAuthException
 import com.firebase.ui.auth.AuthUI
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.consumeEach
+import kotlin.coroutines.CoroutineContext
 
-abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
+abstract class BaseActivity<S> : AppCompatActivity(), CoroutineScope {
 
     companion object {
         const val RC_SIGN_IN = 2222
     }
 
-    abstract val viewModel: BaseViewModel<T, S>
+    override val coroutineContext: CoroutineContext by lazy {
+        Dispatchers.Main + Job()
+    }
+
+    private lateinit var dataJob: Job
+    private lateinit var errorJob: Job
+
+    abstract val viewModel: BaseViewModel<S>
     abstract val layoutRes: Int?
 
 
@@ -25,19 +35,36 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
         layoutRes?.let {
             setContentView(it)
         }
-
-        viewModel.getViewState().observe(this, Observer { state ->
-            state ?: return@Observer
-            state.error?.let { e ->
-                renderError(e)
-                return@Observer
-            }
-            renderData(state.data)
-        })
-
     }
 
-    abstract fun renderData(data: T)
+    override fun onStart() {
+        super.onStart()
+        dataJob = launch {
+            viewModel.getViewState().consumeEach {
+                renderData(it)
+            }
+        }
+
+        errorJob = launch {
+            viewModel.getErrorChannel().consumeEach {
+                renderError(it)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dataJob.cancel()
+        errorJob.cancel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext.cancel()
+    }
+
+
+    abstract fun renderData(data: S)
 
     private fun renderError(error: Throwable?) {
         when (error) {
